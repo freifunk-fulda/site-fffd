@@ -17,7 +17,7 @@ iptables \
 haveged
 
 
-DEFAULT_GLUON_RELEASE := 0.1
+DEFAULT_GLUON_RELEASE := stable-snapshot-$(shell date '+%Y%m%d%H%M%S')
 
 # Allow overriding the release number from the command line
 GLUON_RELEASE ?= $(DEFAULT_GLUON_RELEASE)
