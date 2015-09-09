@@ -127,7 +127,6 @@ update() {
   for GLUON_TARGET in ${GLUON_TARGETS}; do
     make clean ${MAKEOPTS} GLUON_TARGET=${GLUON_TARGET}
   done
-
 }
 
 download() {
