@@ -1,6 +1,6 @@
 #!/bin/bash -e
 # =====================================================================
-# Build script for Freifunk Fulda firmware runningn on Jenkinis CI
+# Build script for Freifunk Fulda firmware running on Jenkinis CI
 #
 # Source: https://github.com/freifunk-fulda
 # Contact: fffd-noc@lists.open-mail.net
