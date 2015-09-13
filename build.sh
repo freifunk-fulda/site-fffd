@@ -24,11 +24,13 @@ usage() {
   echo "-h: Show this help"
   echo "-m: Optional setting for make options. Default is \"-j 4\" V=s"
   echo "-n: String for build number, e.g. b48"
+  echo "-t: Specify a list of Build-Targets. Default is \"ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest\""
   echo "-w: Path for workspace, e.g. current work directoy"
+
 }
 
 # Evaluate arguments for build script.
-while getopts b:c:dhm:n:w: flag; do
+while getopts b:c:dhm:n:t:w: flag; do
   case ${flag} in
     b)
       GIT_BRANCH=${OPTARG//\//-}
@@ -72,6 +74,9 @@ while getopts b:c:dhm:n:w: flag; do
     w)
       WORKSPACE=${OPTARG}
       ;;
+	t)
+      TARGETS=${OPTARG}
+      ;;
     *)
       usage
       exit;
@@ -83,19 +88,19 @@ shift $(( OPTIND - 1 ));
 
 # Sanity checks for required arguments
 if [ -z "${GIT_BRANCH}" ]; then
-  echo "Error: Git branch with -b is not set."
-  usage
-  exit 1
+  GIT_BRANCH=`git status | grep "On branch" | sed -r "s/On branch //g" | sed -r "s/\//-/g"`
 fi
 
 if [ -z "${BUILD_NUMBER}" ]; then
-  echo "Error: Build number with -n is not set."
-  usage
-  exit 1
+  BUILD_NUMBER=`date +%Y%m%d%H%M%S`
 fi
 
 if [ -z "${WORKSPACE}" ]; then
   WORKSPACE=$(readlink -e $(dirname $0))
+fi
+
+if [ -z "${TARGETS}" ]; then
+  TARGETS="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest"
 fi
 
 if [ -z "${COMMAND}" ]; then
@@ -103,6 +108,7 @@ if [ -z "${COMMAND}" ]; then
   usage
   exit 1
 fi
+
 
 # Use the root project as site-config for make commands below
 export GLUON_SITEDIR="${WORKSPACE}"
@@ -112,7 +118,7 @@ export GLUON_BRANCH="${GIT_BRANCH#origin/}"            # Use the current git bra
 export GLUON_BUILD="${BUILD_NUMBER}-$(date '+%Y%m%d')" # ... and generate a fency build identifier
 export GLUON_RELEASE="${GLUON_BRANCH}-${GLUON_BUILD}"
 export GLUON_PRIORITY=1                                # Number of days that may pass between releasing an updating
-export GLUON_TARGETS="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest"
+export GLUON_TARGETS="${TARGETS}"
 
 # Specify deployment credentials
 export DEPLOYMENT_SERVER="firmware.fulda.freifunk.net"
