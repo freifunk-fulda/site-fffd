@@ -8,9 +8,6 @@
 # Source: https://github.com/freifunk-fulda
 # Contact: fffd-noc@lists.open-mail.net
 # Web: https://fulda.freifunk.net
-#
-# Credits:
-#   - Freifunk Darmstadt for your great support
 # =====================================================================
 
 # Basic configuration
@@ -23,8 +20,8 @@ SRV_PATH="/var/www/downloads.freifunk-fulda.de/firmware"
 usage() {
   echo ""
   echo "Downloads, signs and uploads a gluon manifest file."
-  echo "Usage ./sign.sh KEY_PATH BRANCH"
-  echo "    PUBKEY      the path to the developers prvate key"
+  echo "Usage ./sign.sh KEYPATH BRANCH"
+  echo "    KEYPATH     the path to the developers private key"
   echo "    BRANCH      the branch to sign"
 }
 
@@ -39,7 +36,7 @@ PUBKEY="${1}"
 BRANCH="${2}"
 
 # Sanity checks for required arguments
-if [[ ! -e "${PUBKEY}" ]]; then
+if [[ ! -e "${KEYPATH}" ]]; then
   echo "Error: Key file not found or not readable: ${KEY_PATH}"
   usage
   exit 1
@@ -69,7 +66,7 @@ scp \
 
 # Sign the local file
 ./gluon/contrib/sign.sh \
-  "${PUBKEY}" \
+  "${KEYPATH}" \
   "${TMP}"
 
 # Upload signed file
