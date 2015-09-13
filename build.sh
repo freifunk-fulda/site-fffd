@@ -22,7 +22,7 @@ usage() {
   echo "-b: String for git branch, e.g. development"
   echo "-d: Enable bash debug output"
   echo "-h: Show this help"
-  echo "-m: Optional setting for make options. Default is \"-j 4\""
+  echo "-m: Optional setting for make options. Default is \"-j 4\" V=s"
   echo "-n: String for build number, e.g. b48"
   echo "-w: Path for workspace, e.g. current work directoy"
 }
