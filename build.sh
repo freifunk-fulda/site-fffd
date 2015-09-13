@@ -31,7 +31,7 @@ usage() {
 while getopts b:c:dhm:n:w: flag; do
   case ${flag} in
     b)
-      GIT_BRANCH=${OPTARG};
+      GIT_BRANCH=${OPTARG//\//-}
       ;;
     c)
       case ${OPTARG} in
@@ -70,7 +70,7 @@ while getopts b:c:dhm:n:w: flag; do
       BUILD_NUMBER=${OPTARG}
       ;;
     w)
-      WORKSPACE=${OPTARG};
+      WORKSPACE=${OPTARG}
       ;;
     *)
       usage
