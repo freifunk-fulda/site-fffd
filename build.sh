@@ -154,6 +154,9 @@ build() {
     echo "--- Build Gluon Images for target: ${GLUON_TARGET}"
     make ${MAKEOPTS} GLUON_TARGET=${GLUON_TARGET}
   done
+
+  echo "--- Build Gluon Manifest: ${GLUON_TARGET}"
+  make ${MAKEOPTS} manifest
 }
 
 sign() {
