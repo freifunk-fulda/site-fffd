@@ -190,14 +190,61 @@ build() {
 
 sign() {
   echo "--- Sign Gluon Firmware Build"
-  contrib/sign.sh ~/freifunk/autoupdate_secret_jenkins images/sysupgrade/${GLUON_BRANCH}.manifest
+  contrib/sign.sh \
+      ~/freifunk/autoupdate_secret_jenkins \
+      images/sysupgrade/${GLUON_BRANCH}.manifest
 }
 
 upload() {
   echo "--- Upload Gluon Firmware Images and Manifest"
-  ssh -i ~/.ssh/deploy_id_rsa -o stricthostkeychecking=no -p 22022 ${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER} "mkdir -p firmware/${GLUON_BRANCH}/${GLUON_BUILD}"
-  scp -i ~/.ssh/deploy_id_rsa -o stricthostkeychecking=no -P 22022 -r images/* ${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER}:firmware/${GLUON_BRANCH}/${GLUON_BUILD}
-  ssh -i ~/.ssh/deploy_id_rsa -o stricthostkeychecking=no -p 22022 ${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER} "ln -sf -T ${GLUON_BUILD} firmware/${GLUON_BRANCH}/current"
+
+  SSH="ssh \
+      -i ~/.ssh/deploy_id_rsa \
+      -o stricthostkeychecking=no \
+      -p 22022"
+
+  # Determine upload target prefix
+  case "${GLUON_BRANCH}" in
+    stable| \
+    testing| \
+    development)
+      TARGET="${GLUON_BRANCH}"
+      ;;
+
+    *)
+      TARGET="others/${GLUON_BRANCH}"
+      ;;
+  esac
+
+  # Create the target directory on server
+  ${SSH} \
+      ${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER} \
+      -- \
+      mkdir \
+          --parents \
+          --verbose \
+          "firmware/${TARGET}/${GLUON_BUILD}"
+
+  # Copy images to server
+  rsync \
+      --verbose \
+      --recursive \
+      --compress \
+      --progress \
+      --rsh="${SSH}" \
+      "images/" \
+      "${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER}:firmware/${TARGET}/${GLUON_BUILD}"
+
+  # Link latest upload in target to 'current'
+  ${SSH} \
+      ${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER} \
+      -- \
+      ln \
+          --symbolic \
+          --force \
+          --no-target-directory \
+          "${GLUON_BUILD}" \
+          "firmware/${TARGET}/current"
 }
 
 (
