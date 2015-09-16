@@ -36,7 +36,7 @@ KEYPATH="${1}"
 BRANCH="${2}"
 
 # Subsitute all slashes in the branch name
-BRANCH=${GIT_BRANCH//\//-}
+BRANCH=${BRANCH//\//-}
 
 # Sanity checks for required arguments
 if [[ ! -e "${KEYPATH}" ]]; then
@@ -54,11 +54,24 @@ fi
 # Determine temporary local file
 TMP="$(mktemp)"
 
+# Determine upload target prefix
+case "${BRANCH}" in
+  stable| \
+  testing| \
+  development)
+    TARGET="${BRANCH}"
+    ;;
+
+  *)
+    TARGET="others/${BRANCH}"
+    ;;
+esac
+
 # Download manifest
 scp \
   -o stricthostkeychecking=no \
   -P "${SRV_PORT}" \
-  "${SRV_USER}@${SRV_HOST}:${SRV_PATH}/${GIT_BRANCH}/current/sysupgrade/${GIT_BRANCH}.manifest" \
+  "${SRV_USER}@${SRV_HOST}:${SRV_PATH}/${TARGET}/current/sysupgrade/${BRANCH}.manifest" \
   "${TMP}"
 
 # Sign the local file
@@ -71,4 +84,4 @@ scp \
   -o stricthostkeychecking=no \
   -P "${SRV_PORT}" \
   "${TMP}" \
-  "${SRV_USER}@${SRV_HOST}:${SRV_PATH}/${GIT_BRANCH}/current/sysupgrade/${GIT_BRANCH}.manifest"
+  "${SRV_USER}@${SRV_HOST}:${SRV_PATH}/${TARGET}/current/sysupgrade/${BRANCH}.manifest"
