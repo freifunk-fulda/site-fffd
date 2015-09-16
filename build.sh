@@ -137,7 +137,7 @@ export GLUON_SITEDIR
 update() {
   make update ${MAKEOPTS}
   for GLUON_TARGET in ${GLUON_TARGETS}; do
-    echo "--- Update Gluon for target: ${GLUON_TARGET}"
+    echo "--- Update Gluon Dependencies for target: ${GLUON_TARGET}"
     make clean ${MAKEOPTS} GLUON_TARGET=${GLUON_TARGET}
   done
 }
@@ -151,7 +151,7 @@ download() {
 
 build() {
   for GLUON_TARGET in ${GLUON_TARGETS}; do
-    echo "--- Build Gluon Dependencies for target: ${GLUON_TARGET}"
+    echo "--- Build Gluon Images for target: ${GLUON_TARGET}"
     make ${MAKEOPTS} GLUON_TARGET=${GLUON_TARGET}
   done
 }
@@ -162,7 +162,7 @@ sign() {
 }
 
 upload() {
-  echo "--- Upload Gluon Firmware Build"
+  echo "--- Upload Gluon Firmware Images and Manifest"
   ssh -i ~/.ssh/deploy_id_rsa -o stricthostkeychecking=no -p 22022 ${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER} "mkdir -p firmware/${GLUON_BRANCH}/${GLUON_BUILD}"
   scp -i ~/.ssh/deploy_id_rsa -o stricthostkeychecking=no -P 22022 -r images/* ${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER}:firmware/${GLUON_BRANCH}/${GLUON_BUILD}
   ssh -i ~/.ssh/deploy_id_rsa -o stricthostkeychecking=no -p 22022 ${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER} "ln -sf -T ${GLUON_BUILD} firmware/${GLUON_BRANCH}/current"
