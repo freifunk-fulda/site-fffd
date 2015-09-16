@@ -14,10 +14,10 @@
 MAKEOPTS="-j 4 V=s"
 
 # Default to build all Gluon targets if parameter -t is not set
-GLUON_TARGETS="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest"
+TARGETS="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest"
 
 # Default is set to use current work directory
-GLUON_SITEDIR="$(pwd)"
+SITEDIR="$(pwd)"
 
 # Default build set to snapshot
 BUILD_NUMBER="snapshot"
@@ -35,18 +35,20 @@ usage() {
   echo "Build script for Freifunk-Fulda gluon firmware."
   echo ""
   echo "-b: Firmware branch name (e.g. development)"
-  echo "    Default is: current git branch"
+  echo "    Default: current git branch"
   echo "-c: Build command: update | download | build | sign | upload"
   echo "-d: Enable bash debug output"
   echo "-h: Show this help"
   echo "-m: Setting for make options (optional)"
-  echo "    Default is \"${MAKEOPTS}\""
+  echo "    Default: \"${MAKEOPTS}\""
   echo "-n: Build number (optional)"
-  echo "    Default is: \"${BUILD_NUMBER}\""
+  echo "    Default: \"${BUILD_NUMBER}\""
   echo "-t: Gluon targets architectures to build"
-  echo "    Default is: \"${GLUON_TARGETS}\""
+  echo "    Default: \"${TARGETS}\""
+  echo "-r: Release number (optional)"
+  echo "    Default: fetched from release file"
   echo "-w: Path to site directory"
-  echo "    Default is: current working directory"
+  echo "    Default: current working directory"
 }
 
 # Evaluate arguments for build script.
@@ -59,7 +61,7 @@ fi
 while getopts b:c:dhm:n:t:w: flag; do
   case ${flag} in
     b)
-        GIT_BRANCH="${OPTARG}"
+        BRANCH="${OPTARG}"
         ;;
     c)
       case "${OPTARG}" in
@@ -99,11 +101,14 @@ while getopts b:c:dhm:n:t:w: flag; do
       BUILD_NUMBER="${OPTARG}"
       ;;
     t)
-      GLUON_TARGETS="${OPTARG}"
+      TARGETS="${OPTARG}"
+      ;;
+    r)
+      RELEASE="${OPTARG}"
       ;;
     w)
       # Use the root project as site-config for make commands below
-      GLUON_SITEDIR="${OPTARG}"
+      SITEDIR="${OPTARG}"
       ;;
     *)
       usage
@@ -123,10 +128,10 @@ if [[ "${#}" > 0 ]]; then
 fi
 
 # Set branch name
-if [[ -z "${GIT_BRANCH}" ]]; then
-  GIT_BRANCH=$(git symbolic-ref -q HEAD)
-  GIT_BRANCH=${GIT_BRANCH##refs/heads/}
-  GIT_BRANCH=${GIT_BRANCH:-HEAD}
+if [[ -z "${BRANCH}" ]]; then
+  BRANCH=$(git symbolic-ref -q HEAD)
+  BRANCH=${BRANCH##refs/heads/}
+  BRANCH=${BRANCH:-HEAD}
 fi
 
 # Set command
@@ -136,65 +141,72 @@ if [[ -z "${COMMAND}" ]]; then
   exit ${E_ILLEGAL_ARGS}
 fi
 
-# Configure gluon build environment
-GLUON_BRANCH="${GIT_BRANCH#origin/}"            # Use the current git branch as autoupdate branch
-GLUON_BRANCH="${GLUON_BRANCH//\//-}"            # Replace all slashes with dashes
-GLUON_BUILD="${BUILD_NUMBER}-$(date '+%Y%m%d')" # ... and generate a fency build identifier
-GLUON_RELEASE="${GLUON_BRANCH}-${GLUON_BUILD}"  # ... and combine it to a release identifier
-GLUON_PRIORITY=1                                # Number of days that may pass between releasing an updating
+# Set release number
+if [[ -z "${RELEASE}" ]]; then
+  RELEASE=$(cat "${SITEDIR}/release")
+fi
+
+# Normalize the branch name
+BRANCH="${BRANCH#origin/}"            # Use the current git branch as autoupdate branch
+BRANCH="${BRANCH//\//-}"            # Replace all slashes with dashes
+
+# Generate a fency build identifier
+RELEASE="${RELEASE}.${BUILD_NUMBER}-$(date '+%Y%m%d%H%M%S')"
+
+# Number of days that may pass between releasing an updating
+PRIORITY=1
 
 update() {
   make ${MAKEOPTS} \
-      GLUON_BRANCH="${GLUON_BRANCH}" \
-      GLUON_RELEASE="${GLUON_RELEASE}" \
-      GLUON_PRIORITY="${GLUON_PRIORITY}" \
-      GLUON_SITEDIR="${GLUON_SITEDIR}" \
-      GLUON_TARGET="${GLUON_TARGET}" \
+      GLUON_BRANCH="${BRANCH}" \
+      GLUON_RELEASE="${RELEASE}" \
+      GLUON_PRIORITY="${PRIORITY}" \
+      GLUON_SITEDIR="${SITEDIR}" \
       update
 
-  for GLUON_TARGET in ${GLUON_TARGETS}; do
-    echo "--- Update Gluon Dependencies for target: ${GLUON_TARGET}"
+  for TARGET in ${TARGETS}; do
+    echo "--- Update Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
-        GLUON_BRANCH="${GLUON_BRANCH}" \
-        GLUON_RELEASE="${GLUON_RELEASE}" \
-        GLUON_PRIORITY="${GLUON_PRIORITY}" \
-        GLUON_SITEDIR="${GLUON_SITEDIR}" \
-        GLUON_TARGET="${GLUON_TARGET}" \
+        GLUON_BRANCH="${BRANCH}" \
+        GLUON_RELEASE="${RELEASE}" \
+        GLUON_PRIORITY="${PRIORITY}" \
+        GLUON_SITEDIR="${SITEDIR}" \
+        GLUON_TARGET="${TARGET}" \
         clean
   done
 }
 
 download() {
-  for GLUON_TARGET in ${GLUON_TARGETS}; do
-    echo "--- Download Gluon Dependencies for target: ${GLUON_TARGET}"
+  for TARGET in ${TARGETS}; do
+    echo "--- Download Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
-        GLUON_BRANCH="${GLUON_BRANCH}" \
-        GLUON_RELEASE="${GLUON_RELEASE}" \
-        GLUON_PRIORITY="${GLUON_PRIORITY}" \
-        GLUON_SITEDIR="${GLUON_SITEDIR}" \
-        GLUON_TARGET="${GLUON_TARGET}" \
+        GLUON_BRANCH="${BRANCH}" \
+        GLUON_RELEASE="${RELEASE}" \
+        GLUON_PRIORITY="${PRIORITY}" \
+        GLUON_SITEDIR="${SITEDIR}" \
+        GLUON_TARGET="${TARGET}" \
         download
   done
 }
 
 build() {
-  for GLUON_TARGET in ${GLUON_TARGETS}; do
-    echo "--- Build Gluon Images for target: ${GLUON_TARGET}"
+  for TARGET in ${TARGETS}; do
+    echo "--- Build Gluon Images for target: ${TARGET}"
     make ${MAKEOPTS} \
-        GLUON_BRANCH="${GLUON_BRANCH}" \
-        GLUON_RELEASE="${GLUON_RELEASE}" \
-        GLUON_PRIORITY="${GLUON_PRIORITY}" \
-        GLUON_SITEDIR="${GLUON_SITEDIR}" \
-        GLUON_TARGET="${GLUON_TARGET}" \
+        GLUON_BRANCH="${BRANCH}" \
+        GLUON_RELEASE="${RELEASE}" \
+        GLUON_PRIORITY="${PRIORITY}" \
+        GLUON_SITEDIR="${SITEDIR}" \
+        GLUON_TARGET="${TARGET}" \
         all
   done
 
-  echo "--- Build Gluon Manifest: ${GLUON_TARGET}"
+  echo "--- Build Gluon Manifest: ${TARGET}"
   make ${MAKEOPTS} \
-      GLUON_BRANCH="${GLUON_BRANCH}" \
-      GLUON_RELEASE="${GLUON_RELEASE}" \
-      GLUON_PRIORITY="${GLUON_PRIORITY}" \
-      GLUON_SITEDIR="${GLUON_SITEDIR}" \
+      GLUON_BRANCH="${BRANCH}" \
+      GLUON_RELEASE="${RELEASE}" \
+      GLUON_PRIORITY="${PRIORITY}" \
+      GLUON_SITEDIR="${SITEDIR}" \
       manifest
 }
 
@@ -204,7 +216,7 @@ sign() {
   # Add the signature to the local manifest
   contrib/sign.sh \
       ~/freifunk/autoupdate_secret_jenkins \
-      images/sysupgrade/${GLUON_BRANCH}.manifest
+      images/sysupgrade/${BRANCH}.manifest
 }
 
 upload() {
@@ -217,15 +229,15 @@ upload() {
       -p 22022"
 
   # Determine upload target prefix
-  case "${GLUON_BRANCH}" in
+  case "${BRANCH}" in
     stable| \
     testing| \
     development)
-      TARGET="${GLUON_BRANCH}"
+      TARGET="${BRANCH}"
       ;;
 
     *)
-      TARGET="others/${GLUON_BRANCH}"
+      TARGET="others/${BRANCH}"
       ;;
   esac
 
@@ -236,7 +248,7 @@ upload() {
       mkdir \
           --parents \
           --verbose \
-          "firmware/${TARGET}/${GLUON_BUILD}"
+          "firmware/${TARGET}/${RELEASE}"
 
   # Copy images to server
   rsync \
@@ -246,7 +258,7 @@ upload() {
       --progress \
       --rsh="${SSH}" \
       "images/" \
-      "${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER}:firmware/${TARGET}/${GLUON_BUILD}"
+      "${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER}:firmware/${TARGET}/${RELEASE}"
 
   # Link latest upload in target to 'current'
   ${SSH} \
@@ -256,13 +268,13 @@ upload() {
           --symbolic \
           --force \
           --no-target-directory \
-          "${GLUON_BUILD}" \
+          "${RELEASE}" \
           "firmware/${TARGET}/current"
 }
 
 (
   # Change working directory to gluon tree
-  cd "${GLUON_SITEDIR}/gluon"
+  cd "${SITEDIR}/gluon"
 
   # Execute the selected command
   ${COMMAND}
