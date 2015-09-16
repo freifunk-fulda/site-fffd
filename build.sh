@@ -26,32 +26,33 @@ BUILD_NUMBER="snapshot"
 DEPLOYMENT_SERVER="firmware.fulda.freifunk.net"
 DEPLOYMENT_USER="deployment"
 
-E_MISSING_ARG=126
-E_WRONG_ARG=127
+# Error codes
+E_ILLEGAL_ARGS=126
 
 # Help function used in error messages and -h option
 usage() {
   echo ""
   echo "Build script for Freifunk-Fulda gluon firmware."
   echo ""
-  echo "-b: String for git branch, e.g. development"
-  echo "-c: Build command, [ update | download | build | sign | upload ]"
+  echo "-b: Firmware branch name (e.g. development)"
+  echo "    Default is: current git branch"
+  echo "-c: Build command: update | download | build | sign | upload"
   echo "-d: Enable bash debug output"
   echo "-h: Show this help"
-  echo "-m: Optional setting for make options."
+  echo "-m: Setting for make options (optional)"
   echo "    Default is \"${MAKEOPTS}\""
-  echo "-n: String for build number is optional"
+  echo "-n: Build number (optional)"
   echo "    Default is: \"${BUILD_NUMBER}\""
-  echo "-t: Set gluon targets for build."
+  echo "-t: Gluon targets architectures to build"
   echo "    Default is: \"${GLUON_TARGETS}\""
-  echo "-w: Path for workspace used for Gluon site directory, e.g. current work directoy"
-  echo "    Default is: \"${GLUON_SITEDIR}\""
+  echo "-w: Path to site directory"
+  echo "    Default is: current working directory"
 }
 
 # Evaluate arguments for build script.
 if [[ "${#}" == 0 ]]; then
   usage
-  exit ${E_MISSING_ARG}
+  exit ${E_ILLEGAL_ARGS}
 fi
 
 # Evaluate arguments for build script.
@@ -80,7 +81,7 @@ while getopts b:c:dhm:n:t:w: flag; do
         *)
           echo "Error: Invalid build command set."
           usage
-          exit ${E_WRONG_ARG}
+          exit ${E_ILLEGAL_ARGS}
           ;;
       esac
       ;;
@@ -106,25 +107,33 @@ while getopts b:c:dhm:n:t:w: flag; do
       ;;
     *)
       usage
-      exit ${E_WRONG_ARG}
+      exit ${E_ILLEGAL_ARGS}
       ;;
   esac
 done
 
 # Strip of all remaining arguments
-shift $(( OPTIND - 1 ));
+shift $((OPTIND - 1));
 
+# Check if there are remaining arguments
+if [[ "${#}" > 0 ]]; then
+  echo "Error: To many arguments: ${*}"
+  usage
+  exit ${E_ILLEGAL_ARGS}
+fi
+
+# Set branch name
 if [[ -z "${GIT_BRANCH}" ]]; then
-  # Set branch name
   GIT_BRANCH=$(git symbolic-ref -q HEAD)
   GIT_BRANCH=${GIT_BRANCH##refs/heads/}
   GIT_BRANCH=${GIT_BRANCH:-HEAD}
 fi
 
+# Set command
 if [[ -z "${COMMAND}" ]]; then
-  echo "Error: Build command with -c is not set."
+  echo "Error: Build command missing."
   usage
-  exit ${E_MISSING_ARG}
+  exit ${E_ILLEGAL_ARGS}
 fi
 
 # Configure gluon build environment
