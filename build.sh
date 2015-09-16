@@ -127,36 +127,65 @@ if [ -z "${COMMAND}" ]; then
 fi
 
 # Configure gluon build environment
-export GLUON_BRANCH="${GIT_BRANCH#origin/}"            # Use the current git branch as autoupdate branch
-export GLUON_BRANCH="${GLUON_BRANCH//\//-}"
-export GLUON_BUILD="${BUILD_NUMBER}-$(date '+%Y%m%d')" # ... and generate a fency build identifier
-export GLUON_RELEASE="${GLUON_BRANCH}-${GLUON_BUILD}"
-export GLUON_PRIORITY=1                                # Number of days that may pass between releasing an updating
-export GLUON_SITEDIR
+GLUON_BRANCH="${GIT_BRANCH#origin/}"            # Use the current git branch as autoupdate branch
+GLUON_BRANCH="${GLUON_BRANCH//\//-}"            # Replace all slashes with dashes
+GLUON_BUILD="${BUILD_NUMBER}-$(date '+%Y%m%d')" # ... and generate a fency build identifier
+GLUON_RELEASE="${GLUON_BRANCH}-${GLUON_BUILD}"  # ... and combine it to a release identifier
+GLUON_PRIORITY=1                                # Number of days that may pass between releasing an updating
 
 update() {
-  make update ${MAKEOPTS}
+  make ${MAKEOPTS} \
+      GLUON_BRANCH="${GLUON_BRANCH}" \
+      GLUON_RELEASE="${GLUON_RELEASE}" \
+      GLUON_PRIORITY="${GLUON_PRIORITY}" \
+      GLUON_SITEDIR="${GLUON_SITEDIR}" \
+      GLUON_TARGET="${GLUON_TARGET}" \
+      update
+
   for GLUON_TARGET in ${GLUON_TARGETS}; do
     echo "--- Update Gluon Dependencies for target: ${GLUON_TARGET}"
-    make clean ${MAKEOPTS} GLUON_TARGET=${GLUON_TARGET}
+    make ${MAKEOPTS} \
+        GLUON_BRANCH="${GLUON_BRANCH}" \
+        GLUON_RELEASE="${GLUON_RELEASE}" \
+        GLUON_PRIORITY="${GLUON_PRIORITY}" \
+        GLUON_SITEDIR="${GLUON_SITEDIR}" \
+        GLUON_TARGET="${GLUON_TARGET}" \
+        clean
   done
 }
 
 download() {
   for GLUON_TARGET in ${GLUON_TARGETS}; do
     echo "--- Download Gluon Dependencies for target: ${GLUON_TARGET}"
-    make download ${MAKEOPTS} GLUON_TARGET=${GLUON_TARGET}
+    make ${MAKEOPTS} \
+        GLUON_BRANCH="${GLUON_BRANCH}" \
+        GLUON_RELEASE="${GLUON_RELEASE}" \
+        GLUON_PRIORITY="${GLUON_PRIORITY}" \
+        GLUON_SITEDIR="${GLUON_SITEDIR}" \
+        GLUON_TARGET="${GLUON_TARGET}" \
+        download
   done
 }
 
 build() {
   for GLUON_TARGET in ${GLUON_TARGETS}; do
     echo "--- Build Gluon Images for target: ${GLUON_TARGET}"
-    make ${MAKEOPTS} GLUON_TARGET=${GLUON_TARGET}
+    make ${MAKEOPTS} \
+        GLUON_BRANCH="${GLUON_BRANCH}" \
+        GLUON_RELEASE="${GLUON_RELEASE}" \
+        GLUON_PRIORITY="${GLUON_PRIORITY}" \
+        GLUON_SITEDIR="${GLUON_SITEDIR}" \
+        GLUON_TARGET="${GLUON_TARGET}" \
+        all
   done
 
   echo "--- Build Gluon Manifest: ${GLUON_TARGET}"
-  make ${MAKEOPTS} manifest
+  make ${MAKEOPTS} \
+      GLUON_BRANCH="${GLUON_BRANCH}" \
+      GLUON_RELEASE="${GLUON_RELEASE}" \
+      GLUON_PRIORITY="${GLUON_PRIORITY}" \
+      GLUON_SITEDIR="${GLUON_SITEDIR}" \
+      manifest
 }
 
 sign() {
