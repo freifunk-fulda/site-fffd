@@ -111,6 +111,7 @@ while getopts b:c:dhm:n:t:w: flag; do
   esac
 done
 
+# Strip of all remaining arguments
 shift $(( OPTIND - 1 ));
 
 if [[ -z "${GIT_BRANCH}" ]]; then
@@ -190,6 +191,8 @@ build() {
 
 sign() {
   echo "--- Sign Gluon Firmware Build"
+
+  # Add the signature to the local manifest
   contrib/sign.sh \
       ~/freifunk/autoupdate_secret_jenkins \
       images/sysupgrade/${GLUON_BRANCH}.manifest
@@ -198,6 +201,7 @@ sign() {
 upload() {
   echo "--- Upload Gluon Firmware Images and Manifest"
 
+  # Build the ssh command to use
   SSH="ssh \
       -i ~/.ssh/deploy_id_rsa \
       -o stricthostkeychecking=no \
@@ -248,6 +252,9 @@ upload() {
 }
 
 (
+  # Change working directory to gluon tree
   cd "${GLUON_SITEDIR}/gluon"
+
+  # Execute the selected command
   ${COMMAND}
 )
