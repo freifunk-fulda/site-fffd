@@ -113,14 +113,14 @@ done
 
 shift $(( OPTIND - 1 ));
 
-if [ -z "${GIT_BRANCH}" ]; then
+if [[ -z "${GIT_BRANCH}" ]]; then
   # Set branch name
   GIT_BRANCH=$(git symbolic-ref -q HEAD)
   GIT_BRANCH=${GIT_BRANCH##refs/heads/}
   GIT_BRANCH=${GIT_BRANCH:-HEAD}
 fi
 
-if [ -z "${COMMAND}" ]; then
+if [[ -z "${COMMAND}" ]]; then
   echo "Error: Build command with -c is not set."
   usage
   exit ${E_MISSING_ARG}
