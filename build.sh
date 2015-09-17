@@ -19,8 +19,8 @@ TARGETS="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest"
 # Default is set to use current work directory
 SITEDIR="$(pwd)"
 
-# Default build set to snapshot
-BUILD_NUMBER="snapshot"
+# Default build identifier set to snapshot
+BUILD="snapshot"
 
 # Specify deployment server and user
 DEPLOYMENT_SERVER="firmware.fulda.freifunk.net"
@@ -41,8 +41,8 @@ usage() {
   echo "-h: Show this help"
   echo "-m: Setting for make options (optional)"
   echo "    Default: \"${MAKEOPTS}\""
-  echo "-n: Build number (optional)"
-  echo "    Default: \"${BUILD_NUMBER}\""
+  echo "-n: Build identifier (optional)"
+  echo "    Default: \"${BUILD}\""
   echo "-t: Gluon targets architectures to build"
   echo "    Default: \"${TARGETS}\""
   echo "-r: Release number (optional)"
@@ -98,7 +98,7 @@ while getopts b:c:dhm:n:t:w: flag; do
       MAKEOPTS="${OPTARG}"
       ;;
     n)
-      BUILD_NUMBER="${OPTARG}"
+      BUILD="${OPTARG}"
       ;;
     t)
       TARGETS="${OPTARG}"
@@ -147,11 +147,11 @@ if [[ -z "${RELEASE}" ]]; then
 fi
 
 # Normalize the branch name
-BRANCH="${BRANCH#origin/}"            # Use the current git branch as autoupdate branch
-BRANCH="${BRANCH//\//-}"            # Replace all slashes with dashes
+BRANCH="${BRANCH#origin/}" # Use the current git branch as autoupdate branch
+BRANCH="${BRANCH//\//-}"   # Replace all slashes with dashes
 
-# Generate a fency build identifier
-RELEASE="${RELEASE}.${BUILD_NUMBER}-$(date '+%Y%m%d%H%M%S')"
+# Add the build identifer to the release identifier
+RELEASE="${RELEASE}-${BUILD}"
 
 # Number of days that may pass between releasing an updating
 PRIORITY=1
