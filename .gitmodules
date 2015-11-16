@@ -1,4 +1,4 @@
 [submodule "gluon"]
 	path = gluon
 	url = https://github.com/freifunk-fulda/gluon.git
-	branch = development
+	branch = issue/95
