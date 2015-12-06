@@ -32,3 +32,18 @@ msgstr ""
 "und Infos zu speziellen Diensten im Freifunk-Netz findest Du auf unserer Webseite "
 "<a href=\"https://fulda.freifunk.net\">https://fulda.freifunk.net</a>.</p> "
 "<p>Viel Spa&szlig; mit Deinem Freifunk-Knoten und der Erkundung von Freifunk!</p>"
+
+msgid "gluon-luci-node-role:role:node"
+msgstr "Normaler Knoten"
+
+msgid "gluon-luci-node-role:role:backbone"
+msgstr "Backbone-Knoten"
+
+msgid "gluon-luci-node-role:role:service"
+msgstr "Service-Knoten"
+
+msgid "gluon-luci-node-role:role:offloader"
+msgstr "Offloader-Knoten"
+
+msgid "gluon-luci-node-role:role:test"
+msgstr "Test-Knoten"

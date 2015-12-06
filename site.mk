@@ -19,6 +19,7 @@ GLUON_SITE_PACKAGES := \
   gluon-luci-portconfig \
   gluon-luci-private-wifi \
   gluon-luci-mesh-vpn-fastd \
+  gluon-luci-node-role \
   gluon-next-node \
   gluon-mesh-vpn-fastd \
   gluon-radvd \
@@ -27,6 +28,18 @@ GLUON_SITE_PACKAGES := \
   iwinfo \
   iptables \
   haveged
+
+# Support (USB) network interfaces on x86 devices
+ifeq ($(GLUON_TARGET),x86-generic)
+GLUON_SITE_PACKAGES += \
+  kmod-usb-core \
+  kmod-usb2 \
+  kmod-usb-hid \
+  kmod-usb-net \
+  kmod-usb-net-asix \
+  kmod-usb-net-dm9601-ether \
+  kmod-r8169
+endif
 
 # Allow overriding the release number from the command line
 GLUON_RELEASE ?= snapshot-$(shell date '+%Y%m%d%H%M%S')
