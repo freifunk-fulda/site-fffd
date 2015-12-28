@@ -158,21 +158,21 @@ PRIORITY=1
 
 update() {
   make ${MAKEOPTS} \
-      GLUON_BRANCH="${BRANCH}" \
-      GLUON_RELEASE="${RELEASE}" \
-      GLUON_PRIORITY="${PRIORITY}" \
-      GLUON_SITEDIR="${SITEDIR}" \
-      update
+       GLUON_SITEDIR="${SITEDIR}" \
+       GLUON_RELEASE="${RELEASE}" \
+       GLUON_BRANCH="${BRANCH}" \
+       GLUON_PRIORITY="${PRIORITY}" \
+       update
 
   for TARGET in ${TARGETS}; do
     echo "--- Update Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
-        GLUON_BRANCH="${BRANCH}" \
-        GLUON_RELEASE="${RELEASE}" \
-        GLUON_PRIORITY="${PRIORITY}" \
-        GLUON_SITEDIR="${SITEDIR}" \
-        GLUON_TARGET="${TARGET}" \
-        clean
+         GLUON_SITEDIR="${SITEDIR}" \
+         GLUON_RELEASE="${RELEASE}" \
+         GLUON_BRANCH="${BRANCH}" \
+         GLUON_PRIORITY="${PRIORITY}" \
+         GLUON_TARGET="${TARGET}" \
+         clean
   done
 }
 
@@ -180,34 +180,48 @@ download() {
   for TARGET in ${TARGETS}; do
     echo "--- Download Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
-        GLUON_BRANCH="${BRANCH}" \
-        GLUON_RELEASE="${RELEASE}" \
-        GLUON_PRIORITY="${PRIORITY}" \
-        GLUON_SITEDIR="${SITEDIR}" \
-        GLUON_TARGET="${TARGET}" \
-        download
+         GLUON_SITEDIR="${SITEDIR}" \
+         GLUON_RELEASE="${RELEASE}" \
+         GLUON_BRANCH="${BRANCH}" \
+         GLUON_PRIORITY="${PRIORITY}" \
+         GLUON_TARGET="${TARGET}" \
+         download
   done
 }
 
 build() {
   for TARGET in ${TARGETS}; do
     echo "--- Build Gluon Images for target: ${TARGET}"
-    make ${MAKEOPTS} \
-        GLUON_BRANCH="${BRANCH}" \
-        GLUON_RELEASE="${RELEASE}" \
-        GLUON_PRIORITY="${PRIORITY}" \
-        GLUON_SITEDIR="${SITEDIR}" \
-        GLUON_TARGET="${TARGET}" \
-        all
+    case "${BRANCH}" in
+      stable| \
+      testing| \
+      development)
+        make ${MAKEOPTS} \
+             GLUON_SITEDIR="${SITEDIR}" \
+             GLUON_RELEASE="${RELEASE}" \
+             GLUON_BRANCH="${BRANCH}" \
+             GLUON_PRIORITY="${PRIORITY}" \
+             GLUON_TARGET="${TARGET}" \
+             all
+        ;;
+
+      *)
+        make ${MAKEOPTS} \
+             GLUON_SITEDIR="${SITEDIR}" \
+             GLUON_RELEASE="${RELEASE}" \
+             GLUON_TARGET="${TARGET}" \
+             all
+      ;;
+    esac
   done
 
-  echo "--- Build Gluon Manifest: ${TARGET}"
+  echo "--- Build Gluon Manifest"
   make ${MAKEOPTS} \
-      GLUON_BRANCH="${BRANCH}" \
-      GLUON_RELEASE="${RELEASE}" \
-      GLUON_PRIORITY="${PRIORITY}" \
-      GLUON_SITEDIR="${SITEDIR}" \
-      manifest
+       GLUON_SITEDIR="${SITEDIR}" \
+       GLUON_RELEASE="${RELEASE}" \
+       GLUON_BRANCH="${BRANCH}" \
+       GLUON_PRIORITY="${PRIORITY}" \
+       manifest
 }
 
 sign() {
