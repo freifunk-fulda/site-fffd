@@ -237,7 +237,6 @@ upload() {
 
   # Build the ssh command to use
   SSH="ssh"
-  SSH="${SSH} -i ${HOME}/.ssh/deploy_id_rsa"
   SSH="${SSH} -o stricthostkeychecking=no"
   SSH="${SSH} -p 22022"
 
