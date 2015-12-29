@@ -150,6 +150,9 @@ fi
 BRANCH="${BRANCH#origin/}" # Use the current git branch as autoupdate branch
 BRANCH="${BRANCH//\//-}"   # Replace all slashes with dashes
 
+# Get the GIT commit description
+COMMIT="$(git describe --always --dirty)"
+
 # Add the build identifer to the release identifier
 RELEASE="${RELEASE}-${BUILD}"
 
@@ -159,7 +162,7 @@ PRIORITY=1
 update() {
   make ${MAKEOPTS} \
       GLUON_BRANCH="${BRANCH}" \
-      GLUON_RELEASE="${RELEASE}" \
+      GLUON_RELEASE="${RELEASE}-${BRANCH}" \
       GLUON_PRIORITY="${PRIORITY}" \
       GLUON_SITEDIR="${SITEDIR}" \
       update
@@ -168,7 +171,7 @@ update() {
     echo "--- Update Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
         GLUON_BRANCH="${BRANCH}" \
-        GLUON_RELEASE="${RELEASE}" \
+        GLUON_RELEASE="${RELEASE}-${BRANCH}" \
         GLUON_PRIORITY="${PRIORITY}" \
         GLUON_SITEDIR="${SITEDIR}" \
         GLUON_TARGET="${TARGET}" \
@@ -181,7 +184,7 @@ download() {
     echo "--- Download Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
         GLUON_BRANCH="${BRANCH}" \
-        GLUON_RELEASE="${RELEASE}" \
+        GLUON_RELEASE="${RELEASE}-${BRANCH}" \
         GLUON_PRIORITY="${PRIORITY}" \
         GLUON_SITEDIR="${SITEDIR}" \
         GLUON_TARGET="${TARGET}" \
@@ -194,7 +197,7 @@ build() {
     echo "--- Build Gluon Images for target: ${TARGET}"
     make ${MAKEOPTS} \
         GLUON_BRANCH="${BRANCH}" \
-        GLUON_RELEASE="${RELEASE}" \
+        GLUON_RELEASE="${RELEASE}-${BRANCH}" \
         GLUON_PRIORITY="${PRIORITY}" \
         GLUON_SITEDIR="${SITEDIR}" \
         GLUON_TARGET="${TARGET}" \
@@ -204,10 +207,20 @@ build() {
   echo "--- Build Gluon Manifest: ${TARGET}"
   make ${MAKEOPTS} \
       GLUON_BRANCH="${BRANCH}" \
-      GLUON_RELEASE="${RELEASE}" \
+      GLUON_RELEASE="${RELEASE}-${BRANCH}" \
       GLUON_PRIORITY="${PRIORITY}" \
       GLUON_SITEDIR="${SITEDIR}" \
       manifest
+
+  echo "--- Write Build file: ${TARGET}"
+  cat > images/build <<-EOF
+	VERSION=$(cat "${SITEDIR}/release")
+	BUILD=${BUILD}
+	RELEASE=${RELEASE}
+	BRANCH=${BRANCH}
+	COMMIT=${COMMIT}
+	HOST=$(uname -n)
+EOF
 }
 
 sign() {
@@ -224,7 +237,6 @@ upload() {
 
   # Build the ssh command to use
   SSH="ssh"
-  SSH="${SSH} -i ${HOME}/.ssh/deploy_id_rsa"
   SSH="${SSH} -o stricthostkeychecking=no"
   SSH="${SSH} -p 22022"
 
