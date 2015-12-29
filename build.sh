@@ -204,7 +204,7 @@ build() {
         all
   done
 
-  echo "--- Build Gluon Manifest: ${TARGET}"
+  echo "--- Build Gluon Manifest"
   make ${MAKEOPTS} \
       GLUON_BRANCH="${BRANCH}" \
       GLUON_RELEASE="${RELEASE}-${BRANCH}" \
@@ -212,7 +212,7 @@ build() {
       GLUON_SITEDIR="${SITEDIR}" \
       manifest
 
-  echo "--- Write Build file: ${TARGET}"
+  echo "--- Write Build file"
   cat > images/build <<-EOF
 	VERSION=$(cat "${SITEDIR}/release")
 	BUILD=${BUILD}
