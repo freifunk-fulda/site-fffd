@@ -226,7 +226,7 @@ build() {
        GLUON_PRIORITY="${PRIORITY}" \
        manifest
 
-  echo "--- Write Build file: ${TARGET}"
+  echo "--- Write Build file"
   cat > images/build <<EOF
 VERSION=$(cat "${SITEDIR}/release")
 BUILD=${BUILD}
