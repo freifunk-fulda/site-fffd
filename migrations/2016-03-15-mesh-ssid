@@ -4,14 +4,15 @@ local util = require('gluon.util')
 
 local uci = require('luci.model.uci').cursor()
 
-uci:foreach('wireless', 'wifi-iface', function(s)
-	local name = s['.name']
-
-	-- Work on all mesh interfaces
-	if name:match('^mesh_radio%d+$') then
-		uci.set('wireless', name, 'bssid', 'ae:dd:f1:55:9b:a0')
-		uci.set('wireless', name, 'ssid', 'mesh.fulda.freifunk.net')
-	end
+uci:foreach('wireless', 'wifi-iface',
+	function(s)
+		local name = s['.name']
+		
+		-- Work on all mesh interfaces
+		if name:match('^mesh_radio%d+$') then
+			uci:set('wireless', name, 'bssid', 'ae:dd:f1:55:9b:a0')
+			uci:set('wireless', name, 'ssid', 'mesh.fulda.freifunk.net')
+		end
 end)
 
 uci:commit('wireless')
