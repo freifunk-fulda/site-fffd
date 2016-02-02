@@ -13,6 +13,7 @@ GLUON_SITE_PACKAGES := \
   gluon-ebtables-filter-ra-dhcp \
   gluon-fffd-autokey \
   gluon-fffd-wifi-aliases \
+  gluon-fffd-migrator \
   gluon-luci-theme \
   gluon-luci-admin \
   gluon-luci-autoupdater \
