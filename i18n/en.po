@@ -30,3 +30,26 @@ msgstr ""
 "to contact Freifunk Fulda and our services can be found on our webpage: "
 "<a href=\"http://fulda.freifunk.net\">http://fulda.freifunk.net</a>.</p>"
 "<p>We hope you will enjoy our Freifunk network!</p>"
+
+msgid "gluon-config-mode:mailinglist:advertise"
+msgstr ""
+"<p>We would like to ask you to subscribe to the information mailing list, if not done yet. "
+"It is only used for importent announcements and invitations to our meetings. "
+"To do so, visit the following website: <br />"
+"<center><a href=\"https://lists.open-mail.net/listinfo/freifunk-fulda\">https://lists.open-mail.net/listinfo/freifunk-fulda</a></center></p>"
+"<p>Additional information about our communication channels can be found <a href=\"https://wiki.mag.lab.sh/wiki/Freifunk_Fulda/Mailinglisten\">here</a>.</p>"
+
+msgid "gluon-luci-node-role:role:node"
+msgstr "Normal Node"
+
+msgid "gluon-luci-node-role:role:backbone"
+msgstr "Backbone Node"
+
+msgid "gluon-luci-node-role:role:service"
+msgstr "Service Node"
+
+msgid "gluon-luci-node-role:role:offloader"
+msgstr "Offloader Node"
+
+msgid "gluon-luci-node-role:role:test"
+msgstr "Test Node"
