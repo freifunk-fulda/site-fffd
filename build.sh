@@ -162,6 +162,7 @@ PRIORITY=1
 update() {
   make ${MAKEOPTS} \
        GLUON_SITEDIR="${SITEDIR}" \
+       GLUON_OUTPUTDIR="${SITEDIR}/output" \
        GLUON_RELEASE="${RELEASE}-${BRANCH}" \
        GLUON_BRANCH="${BRANCH}" \
        GLUON_PRIORITY="${PRIORITY}" \
@@ -171,7 +172,7 @@ update() {
     echo "--- Update Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
          GLUON_SITEDIR="${SITEDIR}" \
-         GLUON_RELEASE="${RELEASE}" \
+         GLUON_OUTPUTDIR="${SITEDIR}/output" \
          GLUON_RELEASE="${RELEASE}-${BRANCH}" \
          GLUON_PRIORITY="${PRIORITY}" \
          GLUON_TARGET="${TARGET}" \
@@ -184,7 +185,7 @@ download() {
     echo "--- Download Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
          GLUON_SITEDIR="${SITEDIR}" \
-         GLUON_RELEASE="${RELEASE}" \
+         GLUON_OUTPUTDIR="${SITEDIR}/output" \
          GLUON_RELEASE="${RELEASE}-${BRANCH}" \
          GLUON_PRIORITY="${PRIORITY}" \
          GLUON_TARGET="${TARGET}" \
@@ -201,6 +202,7 @@ build() {
       development)
         make ${MAKEOPTS} \
              GLUON_SITEDIR="${SITEDIR}" \
+             GLUON_OUTPUTDIR="${SITEDIR}/output" \
              GLUON_RELEASE="${RELEASE}-${BRANCH}" \
              GLUON_BRANCH="${BRANCH}" \
              GLUON_PRIORITY="${PRIORITY}" \
@@ -211,6 +213,7 @@ build() {
       *)
         make ${MAKEOPTS} \
              GLUON_SITEDIR="${SITEDIR}" \
+             GLUON_OUTPUTDIR="${SITEDIR}/output" \
              GLUON_RELEASE="${RELEASE}-${BRANCH}" \
              GLUON_TARGET="${TARGET}" \
              all
@@ -221,13 +224,14 @@ build() {
   echo "--- Build Gluon Manifest"
   make ${MAKEOPTS} \
        GLUON_SITEDIR="${SITEDIR}" \
+       GLUON_OUTPUTDIR="${SITEDIR}/output" \
        GLUON_RELEASE="${RELEASE}-${BRANCH}" \
        GLUON_BRANCH="${BRANCH}" \
        GLUON_PRIORITY="${PRIORITY}" \
        manifest
 
   echo "--- Write Build file"
-  cat > images/build <<EOF
+  cat > "${SITEDIR}/output/images/build" <<EOF
 VERSION=$(cat "${SITEDIR}/release")
 BUILD=${BUILD}
 RELEASE=${RELEASE}
@@ -243,7 +247,7 @@ sign() {
   # Add the signature to the local manifest
   contrib/sign.sh \
       ~/freifunk/autoupdate_secret_jenkins \
-      images/sysupgrade/${BRANCH}.manifest
+      "${SITEDIR}/output/images/sysupgrade/${BRANCH}.manifest"
 }
 
 upload() {
@@ -283,7 +287,7 @@ upload() {
       --compress \
       --progress \
       --rsh="${SSH}" \
-      "images/" \
+      "${SITEDIR}/output/images/" \
       "${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER}:firmware/${TARGET}/${RELEASE}"
 
   # Link latest upload in target to 'current'
