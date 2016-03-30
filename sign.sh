@@ -14,7 +14,7 @@
 SRV_USER="root"
 SRV_HOST="firmware.fulda.freifunk.net"
 SRV_PORT=22022
-SRV_PATH="/var/www/downloads.freifunk-fulda.de/firmware"
+SRV_PATH="/var/www/downloads.fulda.freifunk.net/firmware"
 
 # Help function used in error messages and -h option
 usage() {
