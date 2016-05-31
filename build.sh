@@ -281,6 +281,7 @@ upload() {
       --recursive \
       --compress \
       --progress \
+      --links \
       --rsh="${SSH}" \
       "images/" \
       "${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER}:firmware/${TARGET}/${RELEASE}-${BUILD}"
