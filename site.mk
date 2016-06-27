@@ -50,3 +50,6 @@ GLUON_PRIORITY ?= 0
 
 # Languages to include
 GLUON_LANGS ?= en de
+
+# Enable hardware with broken support
+BROKEN = 1
