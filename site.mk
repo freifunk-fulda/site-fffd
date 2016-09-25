@@ -1,6 +1,5 @@
 GLUON_SITE_PACKAGES := \
   gluon-mesh-batman-adv-15 \
-  gluon-alfred \
   gluon-respondd \
   gluon-autoupdater \
   gluon-config-mode-autoupdater \
@@ -47,6 +46,9 @@ GLUON_RELEASE ?= snapshot-$(shell date '+%Y%m%d%H%M%S')
 
 # Default priority for updates.
 GLUON_PRIORITY ?= 0
+
+# Region information for regulatory compliance
+GLUON_REGION ?= eu
 
 # Languages to include
 GLUON_LANGS ?= en de
