@@ -56,5 +56,5 @@ GLUON_LANGS ?= en de
 # Enable hardware with broken support
 BROKEN = 1
 
-# Enable Firmware Build for ath10k-based 5GHz WLAN Devices for example Archer c5 and c7 Modellsö
+# Enable Firmware Build for ath10k-based 5GHz WLAN Devices for example Archer c5 and c7 Modells by using ibss Mesh only
 GLUON_ATH10K_MESH = ibss
