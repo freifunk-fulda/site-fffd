@@ -1,7 +1,6 @@
 GLUON_SITE_PACKAGES := \
   gluon-mesh-batman-adv-15 \
-  gluon-alfred \
-  gluon-announced \
+  gluon-respondd \
   gluon-autoupdater \
   gluon-config-mode-autoupdater \
   gluon-config-mode-contact-info \
@@ -12,12 +11,12 @@ GLUON_SITE_PACKAGES := \
   gluon-ebtables-filter-multicast \
   gluon-ebtables-filter-ra-dhcp \
   gluon-fffd-autokey \
-  gluon-fffd-wifi-aliases \
   gluon-fffd-config-mode-mailinglist \
   gluon-luci-theme \
   gluon-luci-admin \
   gluon-luci-autoupdater \
   gluon-luci-portconfig \
+  gluon-luci-wifi-config \
   gluon-luci-private-wifi \
   gluon-luci-mesh-vpn-fastd \
   gluon-luci-node-role \
@@ -39,8 +38,23 @@ GLUON_SITE_PACKAGES += \
   kmod-usb-net \
   kmod-usb-net-asix \
   kmod-usb-net-dm9601-ether \
+  kmod-usb-net-asix-ax88179 \
   kmod-r8169
 endif
+
+# Support (USB) network interfaces on x86-64 devices
+ifeq ($(GLUON_TARGET),x86-64)
+GLUON_SITE_PACKAGES += \
+  kmod-usb-core \
+  kmod-usb2 \
+  kmod-usb-hid \
+  kmod-usb-net \
+  kmod-usb-net-asix \
+  kmod-usb-net-dm9601-ether \
+  kmod-usb-net-asix-ax88179 \
+  usbutils 
+endif
+
 
 # Allow overriding the release number from the command line
 GLUON_RELEASE ?= snapshot-$(shell date '+%Y%m%d%H%M%S')
@@ -48,8 +62,14 @@ GLUON_RELEASE ?= snapshot-$(shell date '+%Y%m%d%H%M%S')
 # Default priority for updates.
 GLUON_PRIORITY ?= 0
 
+# Region information for regulatory compliance
+GLUON_REGION ?= eu
+
 # Languages to include
 GLUON_LANGS ?= en de
 
 # Enable hardware with broken support
 BROKEN = 1
+
+# Enable Firmware Build for ath10k-based 5GHz WLAN Devices for example Archer c5 and c7 Modells by using ibss Mesh only
+GLUON_ATH10K_MESH = ibss

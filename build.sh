@@ -14,7 +14,7 @@
 MAKEOPTS="-j 4 V=s"
 
 # Default to build all Gluon targets if parameter -t is not set
-TARGETS="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest"
+TARGETS="ar71xx-generic ar71xx-nand mpc85xx-generic x86-generic x86-kvm_guest x86-64"
 
 # Default is set to use current work directory
 SITEDIR="$(pwd)"
@@ -159,6 +159,7 @@ PRIORITY=1
 update() {
   make ${MAKEOPTS} \
        GLUON_SITEDIR="${SITEDIR}" \
+       GLUON_OUTPUTDIR="${SITEDIR}/output" \
        GLUON_RELEASE="${RELEASE}-${BUILD}" \
        GLUON_BRANCH="${BRANCH}" \
        GLUON_PRIORITY="${PRIORITY}" \
@@ -168,6 +169,7 @@ update() {
     echo "--- Update Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
          GLUON_SITEDIR="${SITEDIR}" \
+         GLUON_OUTPUTDIR="${SITEDIR}/output" \
          GLUON_RELEASE="${RELEASE}-${BUILD}" \
          GLUON_BRANCH="${BRANCH}" \
          GLUON_PRIORITY="${PRIORITY}" \
@@ -181,6 +183,7 @@ download() {
     echo "--- Download Gluon Dependencies for target: ${TARGET}"
     make ${MAKEOPTS} \
          GLUON_SITEDIR="${SITEDIR}" \
+         GLUON_OUTPUTDIR="${SITEDIR}/output" \
          GLUON_RELEASE="${RELEASE}-${BUILD}" \
          GLUON_BRANCH="${BRANCH}" \
          GLUON_PRIORITY="${PRIORITY}" \
@@ -198,6 +201,7 @@ build() {
       development)
         make ${MAKEOPTS} \
              GLUON_SITEDIR="${SITEDIR}" \
+             GLUON_OUTPUTDIR="${SITEDIR}/output" \
              GLUON_RELEASE="${RELEASE}-${BUILD}" \
              GLUON_BRANCH="${BRANCH}" \
              GLUON_PRIORITY="${PRIORITY}" \
@@ -208,6 +212,7 @@ build() {
       *)
         make ${MAKEOPTS} \
              GLUON_SITEDIR="${SITEDIR}" \
+             GLUON_OUTPUTDIR="${SITEDIR}/output" \
              GLUON_RELEASE="${RELEASE}-${BUILD}" \
              GLUON_BRANCH="${BRANCH}" \
              GLUON_TARGET="${TARGET}" \
@@ -219,13 +224,14 @@ build() {
   echo "--- Build Gluon Manifest"
   make ${MAKEOPTS} \
        GLUON_SITEDIR="${SITEDIR}" \
+       GLUON_OUTPUTDIR="${SITEDIR}/output" \
        GLUON_RELEASE="${RELEASE}-${BUILD}" \
        GLUON_BRANCH="${BRANCH}" \
        GLUON_PRIORITY="${PRIORITY}" \
        manifest
 
   echo "--- Write Build file"
-  cat > images/build <<EOF
+  cat > "${SITEDIR}/output/images/build" <<EOF
 DATE=$(date '+%Y-%m-%d- %H:%M:%S')
 VERSION=$(cat "${SITEDIR}/release")
 RELEASE=${RELEASE}
@@ -242,7 +248,7 @@ sign() {
   # Add the signature to the local manifest
   contrib/sign.sh \
       ~/freifunk/autoupdate_secret_jenkins \
-      images/sysupgrade/${BRANCH}.manifest
+      "${SITEDIR}/output/images/sysupgrade/${BRANCH}.manifest"
 }
 
 upload() {
@@ -283,7 +289,7 @@ upload() {
       --progress \
       --links \
       --rsh="${SSH}" \
-      "images/" \
+      "${SITEDIR}/output/images/" \
       "${DEPLOYMENT_USER}@${DEPLOYMENT_SERVER}:firmware/${TARGET}/${RELEASE}-${BUILD}"
 
   # Link latest upload in target to 'current'
